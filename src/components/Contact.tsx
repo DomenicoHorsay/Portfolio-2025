@@ -1,5 +1,6 @@
 import { Mail, Linkedin, Github } from 'lucide-react';
 import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Contact = () => {
     email: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
     let valid = true;
@@ -44,12 +46,36 @@ const Contact = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+
+    // Substitua com suas credenciais do EmailJS
+    const serviceId = 'service_5x7sisq';
+    const templateId = 'template_f7bsfnj';
+    const publicKey = '-xbf28xGSjEwzFM2u';
+
+    try {
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          message: formData.message,
+        },
+        publicKey
+      );
       alert('Mensagem enviada com sucesso!');
       setFormData({ name: '', email: '', message: '' });
       setErrors({ name: '', email: '', message: '' });
+    } catch (error) {
+      alert('Ocorreu um erro ao enviar a mensagem. Tente novamente.');
+      console.error('Erro ao enviar:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -71,14 +97,14 @@ const Contact = () => {
               </p>
               <div className="space-y-4">
                 <a
-                  href="mailto:seu-email@exemplo.com"
+                  href="mailto:domenicoerick@hotmail.com"
                   className="flex items-center gap-3 text-accent hover:text-primary transition-colors"
                 >
                   <Mail size={20} />
-                  seu-email@exemplo.com
+                  domenicoerick@hotmail.com
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/in/domenicohorsay/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-accent hover:text-primary transition-colors"
@@ -87,7 +113,7 @@ const Contact = () => {
                   LinkedIn
                 </a>
                 <a
-                  href="#"
+                  href="https://github.com/DomenicoHorsay"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-accent hover:text-primary transition-colors"
@@ -98,9 +124,8 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Formulário com validação */}
+            {/* Formulário com integração EmailJS */}
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* Nome */}
               <div>
                 <input
                   type="text"
@@ -113,7 +138,6 @@ const Contact = () => {
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
 
-              {/* Email */}
               <div>
                 <input
                   type="email"
@@ -126,7 +150,6 @@ const Contact = () => {
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
 
-              {/* Mensagem */}
               <div>
                 <textarea
                   name="message"
@@ -139,12 +162,12 @@ const Contact = () => {
                 {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
               </div>
 
-              {/* Botão de Enviar */}
               <button
                 type="submit"
                 className="w-full bg-primary text-white px-6 py-2 rounded hover:bg-primary/90 transition-colors"
+                disabled={isSubmitting}
               >
-                Enviar Mensagem
+                {isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}
               </button>
             </form>
           </div>
